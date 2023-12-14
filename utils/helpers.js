@@ -1,26 +1,24 @@
-import { roots } from "mathjs";
-let T = 286; // Kelvin
-
-let P = Math.exp(-1212.2 + 44344 / T + 187.719 * Math.log(T)) + 20; // initial guess
-
-export function mainFunction() {
+export function mainFunction(T, P) {
   let tello = 1;
-  let T = 286; // Kelvin
-
-  let P = Math.exp(-1212.2 + 44344 / T + 187.719 * Math.log(T)) + 20; // initial guess
-
+  let counter = 1;
+  let answers = [];
   while (Math.abs(tello) > 0.01) {
     P = P - 0.001;
-    tello = fun1(T, P);
-    console.log(`P = ${P}`);
-    console.log(`T = ${T}, P = ${P}, tello = ${tello}`);
+    tello = fuzzyBalance(T, P);
+    counter++;
+    if (counter == 2 || Math.abs(tello) <= 0.01) answers.push({ T, P, tello });
   }
+  console.log(answers);
+  return answers;
 }
-
 export function test() {
-  mainFunction(T, P);
+  let T = 286; // Kelvin
+  let P = Math.exp(-1212.2 + 44344 / T + 187.719 * Math.log(T)) + 20; // initial guess
+
+  console.log(P);
+  return mainFunction(T, P);
 }
-function fun1(T, P) {
+function fuzzyBalance(T, P) {
   let X = 2.3048 * Math.pow(10, -6);
   let Y = 2752.29;
   let ZZZ = 23.01;
@@ -39,16 +37,15 @@ function fun1(T, P) {
   let bbb = (0.0778 * R * Tc) / Pc;
   let A = (a * P) / Math.pow(R * T, 2);
   let B = (bbb * P) / (R * T);
-  let coeff_z = [
+  const Z = solveCubic(
     1,
     B - 1,
     A - 2 * B - 3 * Math.pow(B, 2),
-    Math.pow(B, 2) - A * B + Math.pow(B, 3),
-  ];
+    Math.pow(B, 2) - A * B + Math.pow(B, 3)
+  );
 
-  const Z = calculateRoots(coeff_z);
-  console.log(Z);
-  const ZZ = Math.max(Z);
+  const ZZ = Math.max(...Z);
+
   const phi = Math.exp(
     ZZ -
       1 -
@@ -67,35 +64,69 @@ function fun1(T, P) {
   const F0aw = Math.pow(aw, -1 / landa2);
   const F0i = F0T * F0P * F0aw;
   const Fi = F0i * Math.pow(1 - TETA, alpha);
+
   const tello = Math.abs(fv - Fi);
 
   return tello;
 }
-function calculateRoots(coefficients) {
-  // بررسی طول ضرایب
-  const n = coefficients.length;
-  if (n < 2) {
-    throw new Error("ضرایب باید حداقل دو عدد باشند");
+function cuberoot(x) {
+  var y = Math.pow(Math.abs(x), 1 / 3);
+  return x < 0 ? -y : y;
+}
+function solveCubic(a, b, c, d) {
+  if (Math.abs(a) < 1e-8) {
+    // Quadratic case, ax^2+bx+c=0
+    a = b;
+    b = c;
+    c = d;
+    if (Math.abs(a) < 1e-8) {
+      // Linear case, ax+b=0
+      a = b;
+      b = c;
+      if (Math.abs(a) < 1e-8)
+        // Degenerate case
+        return [];
+      return [-b / a];
+    }
+
+    var D = b * b - 4 * a * c;
+    if (Math.abs(D) < 1e-8) return [-b / (2 * a)];
+    else if (D > 0)
+      return [(-b + Math.sqrt(D)) / (2 * a), (-b - Math.sqrt(D)) / (2 * a)];
+    return [];
   }
 
-  const roots = [];
+  // Convert to depressed cubic t^3+pt+q = 0 (subst x = t - b/3a)
+  var p = (3 * a * c - b * b) / (3 * a * a);
+  var q = (2 * b * b * b - 9 * a * b * c + 27 * a * a * d) / (27 * a * a * a);
+  var roots;
 
-  // بدست آوردن ریشه‌های چندجمله‌ای
-  for (let i = 0; i < n - 1; i++) {
-    const a = coefficients[i];
-    const b = coefficients[i + 1];
-
-    // بررسی خاصیت تقسیم بر صفر
-    if (a === 0 && b !== 0) {
-      roots.push(0);
-    } else if (a !== 0 && b === 0) {
-      roots.push(Number.POSITIVE_INFINITY);
-    } else if (a === 0 && b === 0) {
-      roots.push(Number.NaN);
+  if (Math.abs(p) < 1e-8) {
+    // p = 0 -> t^3 = -q -> t = -q^1/3
+    roots = [cuberoot(-q)];
+  } else if (Math.abs(q) < 1e-8) {
+    // q = 0 -> t^3 + pt = 0 -> t(t^2+p)=0
+    roots = [0].concat(p < 0 ? [Math.sqrt(-p), -Math.sqrt(-p)] : []);
+  } else {
+    var D = (q * q) / 4 + (p * p * p) / 27;
+    if (Math.abs(D) < 1e-8) {
+      // D = 0 -> two roots
+      roots = [(-1.5 * q) / p, (3 * q) / p];
+    } else if (D > 0) {
+      // Only one real root
+      var u = cuberoot(-q / 2 - Math.sqrt(D));
+      roots = [u - p / (3 * u)];
     } else {
-      const root = -b / a;
-      roots.push(root);
+      // D < 0, three roots, but needs to use complex numbers/trigonometric solution
+      var u = 2 * Math.sqrt(-p / 3);
+      var t = Math.acos((3 * q) / p / u) / 3; // D < 0 implies p < 0 and acos argument in [-1..1]
+      var k = (2 * Math.PI) / 3;
+      roots = [u * Math.cos(t), u * Math.cos(t - k), u * Math.cos(t - 2 * k)];
     }
   }
+
+  // Convert back from depressed cubic
+  for (var i = 0; i < roots.length; i++) roots[i] -= b / (3 * a);
+
   return roots;
 }
