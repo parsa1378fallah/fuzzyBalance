@@ -1,16 +1,17 @@
-"use client";
+import { ChartTypeRegistry, ChartOptions, ChartData } from "chart.js/auto";
 import { useRef, useEffect } from "react";
 import { Chart, registerables } from "chart.js";
 
 interface ChartProps {
   width?: number;
   height?: number;
-  type: string;
+  type: keyof ChartTypeRegistry;
   YLabel: string;
   XLable: string;
-  labels?: string[] | number[];
+  labels?: ChartData["labels"];
   data: number[];
   classes: string;
+  options?: ChartOptions;
 }
 
 Chart.register(...registerables);
@@ -24,6 +25,7 @@ const ChartComponent: React.FC<ChartProps> = ({
   XLable,
   YLabel,
   classes,
+  options = {},
 }: ChartProps) => {
   const chartRef = useRef<HTMLCanvasElement | null>(null);
 
@@ -58,13 +60,14 @@ const ChartComponent: React.FC<ChartProps> = ({
             },
           },
         },
+        ...options,
       },
     });
 
     return () => {
       myChart.destroy();
     };
-  }, [width, height, labels, data, type, XLable, YLabel]);
+  }, [width, height, labels, data, type, XLable, YLabel, options]);
 
   return (
     <canvas
