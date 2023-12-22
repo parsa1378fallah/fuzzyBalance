@@ -1,14 +1,14 @@
 "use client";
 
 import ChartComponent from "@/components/shared/chartComponenet";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { test } from "../../utils/helpers.ts";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
 
-const Test = () => {
-  const [answers, setAnswers] = useState([]);
-  const [labeles, setLabeles] = useState<number[]>([]);
+const Test: React.FC = () => {
+  const [answers, setAnswers] = useState<number[]>([]);
+  const [labels, setLabels] = useState<number[]>([]);
 
   const [minTemp, setMinTemp] = useState<number>(100);
   const handleMinTemp = (event: React.ChangeEvent<HTMLInputElement>): void => {
@@ -20,40 +20,44 @@ const Test = () => {
     setMaxTemp(Number(event.target.value));
   };
 
-  const handleFuzzyBalanceChart = async (minTemp: number, maxTemp: number) => {
+  const handleFuzzyBalanceChart = async (
+    minTemp: number,
+    maxTemp: number
+  ): Promise<void> => {
     const a: number[] = await test(minTemp, maxTemp);
     setAnswers(a);
-    setLabeles(
+    setLabels(
       Array.from({ length: a.length }, (_, index) => index + Number(minTemp))
     );
-    console.log(labeles);
   };
+
   useEffect(() => {
     handleFuzzyBalanceChart(Number(minTemp), Number(maxTemp));
-  });
+  }, [minTemp, maxTemp]);
+
   return (
     <div className="w-full mx-auto flex flex-col bg-slate-50 px-10">
       <div className="flex flex-col gap-6 my-3">
-        <div className="flex felx-col items-center gap-2 w-1/2">
+        <div className="flex flex-col items-center gap-2 w-1/2">
           <Input
             type="range"
             placeholder="مینیمم محدوده دما را انتخاب کنید"
             min={"0"}
             max={"400"}
             onChange={handleMinTemp}
-            value={minTemp}
+            value={minTemp.toString()} // Ensure the value is a string
             className={"bg-primary"}
           />
           {minTemp}
         </div>
-        <div className="flex felx-col  items-center gap-2 w-1/2">
+        <div className="flex flex-col items-center gap-2 w-1/2">
           <Input
             type="range"
             placeholder="ماکسیمم محدوده دما را انتخاب کنید"
             min={"0"}
             max={"400"}
             onChange={handleMaxTemp}
-            value={maxTemp}
+            value={maxTemp.toString()} // Ensure the value is a string
           />
           {maxTemp}
         </div>
@@ -71,7 +75,7 @@ const Test = () => {
         <ChartComponent
           type={"line"}
           data={answers}
-          labels={labeles}
+          labels={labels}
           YLabel={"فشار"}
           XLable={"دما"}
           classes={"py-4"}
