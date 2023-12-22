@@ -2,7 +2,7 @@
 
 import ChartComponent from "@/components/shared/chartComponenet";
 import { useEffect, useState, useRef } from "react";
-import { test } from "../../utils/helpers.js";
+import { test } from "../../utils/helpers.ts";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
 
