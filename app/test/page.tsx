@@ -33,7 +33,7 @@ const Test: React.FC = () => {
 
   useEffect(() => {
     handleFuzzyBalanceChart(Number(minTemp), Number(maxTemp));
-  }, [minTemp, maxTemp]);
+  }, []);
 
   return (
     <div className="w-full mx-auto flex flex-col bg-slate-50 px-10">
