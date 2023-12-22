@@ -11,13 +11,13 @@ const Test = () => {
   const [labeles, setLabeles] = useState<number[]>([]);
 
   const [minTemp, setMinTemp] = useState<number>(100);
-  const handleMinTemp = (event): void => {
-    setMinTemp(event.target.value);
+  const handleMinTemp = (event: React.ChangeEvent<HTMLInputElement>): void => {
+    setMinTemp(Number(event.target.value));
   };
 
   const [maxTemp, setMaxTemp] = useState<number>(105);
-  const handleMaxTemp = (event): void => {
-    setMaxTemp(event.target.value);
+  const handleMaxTemp = (event: React.ChangeEvent<HTMLInputElement>): void => {
+    setMaxTemp(Number(event.target.value));
   };
 
   const handleFuzzyBalanceChart = async (minTemp: number, maxTemp: number) => {
