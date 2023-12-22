@@ -2,7 +2,7 @@
 import { useRef, useEffect } from "react";
 import { Chart, registerables } from "chart.js";
 
-interface chartProps {
+interface ChartProps {
   width?: number;
   height?: number;
   type: string;
@@ -15,7 +15,7 @@ interface chartProps {
 
 Chart.register(...registerables);
 
-const ChartComponent = ({
+const ChartComponent: React.FC<ChartProps> = ({
   width,
   height,
   labels,
@@ -24,12 +24,14 @@ const ChartComponent = ({
   XLable,
   YLabel,
   classes,
-}: chartProps) => {
+}: ChartProps) => {
   const chartRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
     const ctx = chartRef.current?.getContext("2d");
-    let myChart = new Chart(ctx, {
+    if (!ctx) return;
+
+    const myChart = new Chart(ctx, {
       type: type,
       data: {
         labels: labels,
@@ -58,10 +60,11 @@ const ChartComponent = ({
         },
       },
     });
+
     return () => {
       myChart.destroy();
     };
-  }, [width, height, labels, data, type]);
+  }, [width, height, labels, data, type, XLable, YLabel]);
 
   return (
     <canvas
@@ -72,4 +75,5 @@ const ChartComponent = ({
     ></canvas>
   );
 };
+
 export default ChartComponent;
