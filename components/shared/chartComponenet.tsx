@@ -10,6 +10,7 @@ interface chartProps {
   XLable: string;
   labels?: string[] | number[];
   data: number[];
+  classes: string;
 }
 
 Chart.register(...registerables);
@@ -22,6 +23,7 @@ const ChartComponent = ({
   type,
   XLable,
   YLabel,
+  classes,
 }: chartProps) => {
   const chartRef = useRef<HTMLCanvasElement | null>(null);
 
@@ -61,6 +63,13 @@ const ChartComponent = ({
     };
   }, [width, height, labels, data, type]);
 
-  return <canvas ref={chartRef} width={width} height={height}></canvas>;
+  return (
+    <canvas
+      className={classes}
+      ref={chartRef}
+      width={width}
+      height={height}
+    ></canvas>
+  );
 };
 export default ChartComponent;

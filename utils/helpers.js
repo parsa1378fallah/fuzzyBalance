@@ -1,24 +1,36 @@
 export async function mainFunction(T, P) {
   let tello = 1;
-  let counter = 1;
-  let answer = null;
-  while (Math.abs(tello) > 0.01) {
-    P = P - 0.001;
-    tello = fuzzyBalance(T, P);
-    counter++;
-    if (Math.abs(tello) <= 0.01) {
-      answer = P;
-      break;
-    }
+  function repeat() {
+    return new Promise((resolve) => {
+      tello = fuzzyBalance(T, P);
+      P = P - 0.001;
+      if (Math.abs(tello) > 0.01) {
+        requestAnimationFrame(() => resolve(repeat()));
+      } else {
+        resolve(P);
+      }
+    });
   }
-  return answer;
+  return await repeat();
 }
 export async function test(minTemp, maxTemp) {
   let answers = [];
-  for (let T = minTemp; T <= maxTemp; T++) {
-    let P = Math.exp(-1212.2 + 44344 / T + 187.719 * Math.log(T)) + 20;
-    answers.push(await mainFunction(T, P));
+  function processTemperature(T) {
+    return new Promise(async (resolve) => {
+      let P = Math.exp(-1212.2 + 44344 / T + 187.719 * Math.log(T)) + 20;
+      const result = await mainFunction(T, P);
+      console.log(result);
+      answers.push(result);
+      resolve();
+    });
   }
+
+  // اجرای mainFunction برای هر مقدار T با استفاده از Promise
+  for (let T = minTemp; T <= maxTemp; T++) {
+    await processTemperature(T);
+  }
+
+  console.log(answers);
   return answers;
 }
 function fuzzyBalance(T, P) {
