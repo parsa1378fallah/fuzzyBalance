@@ -1,22 +1,25 @@
-export function mainFunction(T, P) {
+export async function mainFunction(T, P) {
   let tello = 1;
   let counter = 1;
-  let answers = [];
+  let answer = null;
   while (Math.abs(tello) > 0.01) {
     P = P - 0.001;
     tello = fuzzyBalance(T, P);
     counter++;
-    if (counter == 2 || Math.abs(tello) <= 0.01) answers.push({ T, P, tello });
+    if (Math.abs(tello) <= 0.01) {
+      answer = P;
+      break;
+    }
   }
-  console.log(answers);
-  return answers;
+  return answer;
 }
-export function test() {
-  let T = 286; // Kelvin
-  let P = Math.exp(-1212.2 + 44344 / T + 187.719 * Math.log(T)) + 20; // initial guess
-
-  console.log(P);
-  return mainFunction(T, P);
+export async function test(minTemp, maxTemp) {
+  let answers = [];
+  for (let T = minTemp; T <= maxTemp; T++) {
+    let P = Math.exp(-1212.2 + 44344 / T + 187.719 * Math.log(T)) + 20;
+    answers.push(await mainFunction(T, P));
+  }
+  return answers;
 }
 function fuzzyBalance(T, P) {
   let X = 2.3048 * Math.pow(10, -6);
