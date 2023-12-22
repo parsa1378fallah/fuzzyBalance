@@ -1,9 +1,11 @@
-export async function mainFunction(T, P) {
+export async function mainFunction(T: number, P: number): Promise<number> {
   let tello = 1;
-  function repeat() {
+
+  function repeat(): Promise<number> {
     return new Promise((resolve) => {
       tello = fuzzyBalance(T, P);
       P = P - 0.001;
+
       if (Math.abs(tello) > 0.01) {
         requestAnimationFrame(() => resolve(repeat()));
       } else {
@@ -11,14 +13,17 @@ export async function mainFunction(T, P) {
       }
     });
   }
+
   return await repeat();
 }
-export async function test(minTemp, maxTemp) {
-  let answers = [];
-  function processTemperature(T) {
+
+export async function test(minTemp: number, maxTemp: number): Promise<number[]> {
+  let answers: number[] = [];
+
+  async function processTemperature(T: number): Promise<void> {
     return new Promise(async (resolve) => {
       let P = Math.exp(-1212.2 + 44344 / T + 187.719 * Math.log(T)) + 20;
-      const result = await mainFunction(T, P);
+      const result: number = await mainFunction(T, P);
       console.log(result);
       answers.push(result);
       resolve();
@@ -33,7 +38,8 @@ export async function test(minTemp, maxTemp) {
   console.log(answers);
   return answers;
 }
-function fuzzyBalance(T, P) {
+
+function fuzzyBalance(T: number, P: number): number {
   let X = 2.3048 * Math.pow(10, -6);
   let Y = 2752.29;
   let ZZZ = 23.01;
@@ -63,9 +69,9 @@ function fuzzyBalance(T, P) {
 
   const phi = Math.exp(
     ZZ -
-      1 -
-      Math.log(ZZ - B) -
-      (A / (2.82843 * B)) * Math.log((ZZ + 2.414 * B) / (ZZ - 0.414 * B))
+    1 -
+    Math.log(ZZ - B) -
+    (A / (2.82843 * B)) * Math.log((ZZ + 2.414 * B) / (ZZ - 0.414 * B))
   ); // fugasity coefficient
   const fv = phi * P;
   // Calculate the concentration of CO2 (C) for each value of i
@@ -84,11 +90,13 @@ function fuzzyBalance(T, P) {
 
   return tello;
 }
-function cuberoot(x) {
+
+function cuberoot(x: number): number {
   var y = Math.pow(Math.abs(x), 1 / 3);
   return x < 0 ? -y : y;
 }
-function solveCubic(a, b, c, d) {
+
+function solveCubic(a: number, b: number, c: number, d: number): number[] {
   if (Math.abs(a) < 1e-8) {
     // Quadratic case, ax^2+bx+c=0
     a = b;
@@ -114,7 +122,7 @@ function solveCubic(a, b, c, d) {
   // Convert to depressed cubic t^3+pt+q = 0 (subst x = t - b/3a)
   var p = (3 * a * c - b * b) / (3 * a * a);
   var q = (2 * b * b * b - 9 * a * b * c + 27 * a * a * d) / (27 * a * a * a);
-  var roots;
+  var roots: number[];
 
   if (Math.abs(p) < 1e-8) {
     // p = 0 -> t^3 = -q -> t = -q^1/3
