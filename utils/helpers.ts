@@ -1,63 +1,36 @@
-export async function mainFunction(T: number, P: number): Promise<number> {
-  let tello = 1;
-
-  function repeat(): Promise<number> {
-    return new Promise((resolve) => {
-      tello = fuzzyBalance(T, P);
-      P = P - 0.001;
-
-      if (Math.abs(tello) > 0.01) {
-        requestAnimationFrame(() => resolve(repeat()));
-      } else {
-        resolve(P);
-      }
-    });
+export async function main(T: number): Promise<number> {
+  let tello: number = 1;
+  let P: number = Math.exp(-1212.2 + 44344 / T + 187.719 * Math.log(T)) + 20;
+  let counter = 0;
+  while (Math.abs(tello) > 0.01) {
+    P = P - 0.001;
+    tello = fuzzyBalance(T, P);
+    counter++;
   }
-
-  return await repeat();
+  console.log("T :", T, "P :", P, "tello :", tello, " C :", counter)
+  return P;
 }
 
-export async function test(minTemp: number, maxTemp: number): Promise<number[]> {
-  let answers: number[] = [];
-
-  async function processTemperature(T: number): Promise<void> {
-    return new Promise(async (resolve) => {
-      let P = Math.exp(-1212.2 + 44344 / T + 187.719 * Math.log(T)) + 20;
-      const result: number = await mainFunction(T, P);
-      console.log(result);
-      answers.push(result);
-      resolve();
-    });
-  }
-
-  // اجرای mainFunction برای هر مقدار T با استفاده از Promise
-  for (let T = minTemp; T <= maxTemp; T++) {
-    await processTemperature(T);
-  }
-
-  console.log(answers);
-  return answers;
-}
 
 function fuzzyBalance(T: number, P: number): number {
-  let X = 2.3048 * Math.pow(10, -6);
-  let Y = 2752.29;
-  let ZZZ = 23.01;
-  let aw = 1;
-  let landa2 = 3 / 23;
-  let alpha = 1 / 3;
-  let beta = 0.4242; // Kelvin/bar;
-  let Tc = 190.4; // K, critical letants for CH4
-  let Pc = 46; // bar
-  let omega0 = 0.011;
-  let R = 83.14; // barcm3/(gmolK);
-  let Tr = T / Tc;
-  let k1 = 0.37464 + 1.54226 * omega0 - 0.26992 * Math.pow(omega0, 2);
-  let alfa = Math.pow(1 + k1 * (1 - Math.sqrt(Tr)), 2);
-  let a = (alfa * 0.45724 * Math.pow(R, 2) * Math.pow(Tc, 2)) / Pc;
-  let bbb = (0.0778 * R * Tc) / Pc;
-  let A = (a * P) / Math.pow(R * T, 2);
-  let B = (bbb * P) / (R * T);
+  let X: number = 2.3048 * Math.pow(10, -6);
+  let Y: number = 2752.29;
+  let ZZZ: number = 23.01;
+  let aw: number = 1;
+  let landa2: number = 3 / 23;
+  let alpha: number = 1 / 3;
+  let beta: number = 0.4242; // Kelvin/bar;
+  let Tc: number = 190.4; // K, critical letants for CH4
+  let Pc: number = 46; // bar
+  let omega0: number = 0.011;
+  let R: number = 83.14; // barcm3/(gmolK);
+  let Tr: number = T / Tc;
+  let k1: number = 0.37464 + 1.54226 * omega0 - 0.26992 * Math.pow(omega0, 2);
+  let alfa: number = Math.pow(1 + k1 * (1 - Math.sqrt(Tr)), 2);
+  let a: number = (alfa * 0.45724 * Math.pow(R, 2) * Math.pow(Tc, 2)) / Pc;
+  let bbb: number = (0.0778 * R * Tc) / Pc;
+  let A: number = (a * P) / Math.pow(R * T, 2);
+  let B: number = (bbb * P) / (R * T);
   const Z = solveCubic(
     1,
     B - 1,
@@ -153,3 +126,4 @@ function solveCubic(a: number, b: number, c: number, d: number): number[] {
 
   return roots;
 }
+

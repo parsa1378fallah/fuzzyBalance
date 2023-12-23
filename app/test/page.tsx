@@ -2,7 +2,7 @@
 
 import ChartComponent from "@/components/shared/chartComponenet";
 import { useEffect, useState } from "react";
-import { test } from "../../utils/helpers.ts";
+import { main } from "../../utils/helpers.ts";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
 
@@ -10,12 +10,12 @@ const Test: React.FC = () => {
   const [answers, setAnswers] = useState<number[]>([]);
   const [labels, setLabels] = useState<number[]>([]);
 
-  const [minTemp, setMinTemp] = useState<number>(100);
+  const [minTemp, setMinTemp] = useState<number>(285);
   const handleMinTemp = (event: React.ChangeEvent<HTMLInputElement>): void => {
     setMinTemp(Number(event.target.value));
   };
 
-  const [maxTemp, setMaxTemp] = useState<number>(105);
+  const [maxTemp, setMaxTemp] = useState<number>(292);
   const handleMaxTemp = (event: React.ChangeEvent<HTMLInputElement>): void => {
     setMaxTemp(Number(event.target.value));
   };
@@ -24,10 +24,16 @@ const Test: React.FC = () => {
     minTemp: number,
     maxTemp: number
   ): Promise<void> => {
-    const a: number[] = await test(minTemp, maxTemp);
-    setAnswers(a);
+    setAnswers([]);
+    for (let T: number = minTemp; T <= maxTemp; T++) {
+      const answer: number = await main(T);
+      setAnswers((current) => [...current, answer]);
+    }
     setLabels(
-      Array.from({ length: a.length }, (_, index) => index + Number(minTemp))
+      Array.from(
+        { length: maxTemp - minTemp + 1 },
+        (_, index) => index + Number(minTemp)
+      )
     );
   };
 
