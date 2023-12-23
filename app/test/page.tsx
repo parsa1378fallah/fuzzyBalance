@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { main } from "../../utils/helpers.ts";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
+import { isInteger } from "mathjs";
 
 const Test: React.FC = () => {
   const [answers, setAnswers] = useState<number[]>([]);
@@ -26,15 +27,21 @@ const Test: React.FC = () => {
   ): Promise<void> => {
     setAnswers([]);
     for (let T: number = minTemp; T <= maxTemp; T++) {
-      const answer: number = await main(T);
+      let answer: number = await main(T);
+      setAnswers((current) => [...current, answer]);
+    }
+    if (maxTemp != Math.abs(maxTemp)) {
+      console.log("dfasfdsa");
+      let answer = await main(maxTemp);
       setAnswers((current) => [...current, answer]);
     }
     setLabels(
       Array.from(
-        { length: maxTemp - minTemp + 1 },
+        { length: maxTemp - minTemp },
         (_, index) => index + Number(minTemp)
       )
     );
+    setLabels((current) => [...current, maxTemp]);
   };
 
   useEffect(() => {
@@ -44,7 +51,8 @@ const Test: React.FC = () => {
   return (
     <div className="w-full mx-auto flex flex-col bg-slate-50 px-10">
       <div className="flex flex-col gap-6 my-3">
-        <div className="flex flex-col items-center gap-2 w-1/2">
+        <div className="flex items-center gap-2">
+          <p className="whitespace-nowrap">مینیمم دما : {minTemp}</p>
           <Input
             type="range"
             placeholder="مینیمم محدوده دما را انتخاب کنید"
@@ -53,10 +61,11 @@ const Test: React.FC = () => {
             onChange={handleMinTemp}
             value={minTemp.toString()} // Ensure the value is a string
             className={"bg-primary"}
+            step={"0.1"}
           />
-          {minTemp}
         </div>
-        <div className="flex flex-col items-center gap-2 w-1/2">
+        <div className="flex items-center gap-2">
+          <p className="whitespace-nowrap">ماکسیمم دما : {maxTemp}</p>
           <Input
             type="range"
             placeholder="ماکسیمم محدوده دما را انتخاب کنید"
@@ -64,8 +73,8 @@ const Test: React.FC = () => {
             max={"400"}
             onChange={handleMaxTemp}
             value={maxTemp.toString()} // Ensure the value is a string
+            step={"0.1"}
           />
-          {maxTemp}
         </div>
         <Button
           variant={"outline"}

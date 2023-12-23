@@ -7,7 +7,6 @@ export async function main(T: number): Promise<number> {
     tello = fuzzyBalance(T, P);
     counter++;
   }
-  console.log("T :", T, "P :", P, "tello :", tello, " C :", counter)
   return P;
 }
 
