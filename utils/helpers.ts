@@ -1,11 +1,9 @@
 export async function main(T: number): Promise<number> {
   let tello: number = 1;
   let P: number = Math.exp(-1212.2 + 44344 / T + 187.719 * Math.log(T)) + 20;
-  let counter = 0;
   while (Math.abs(tello) > 0.01) {
     P = P - 0.001;
     tello = fuzzyBalance(T, P);
-    counter++;
   }
   return P;
 }
