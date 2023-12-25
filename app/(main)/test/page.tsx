@@ -81,7 +81,7 @@ const Test: React.FC = () => {
           />
         </div>
         <Button
-          variants={"outline"}
+          
           className={`w-1/2 text-xl ${
             Number(minTemp) < Number(maxTemp) ? "bg-green-500" : "bg-red-500"
           }`}
