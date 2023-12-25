@@ -1,8 +1,14 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@font-face {
+  font-family: "vazir";
+  background-color: red;
+  src: url(../public/fonts/Vazir-FD-WOL.ttf);
+}
 * {
   direction: rtl;
+  font-family: vazir !important;
 }
 @layer base {
   :root {

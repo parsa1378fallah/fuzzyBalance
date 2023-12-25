@@ -1,13 +1,14 @@
 "use client";
-
 import ChartComponent from "@/components/shared/chartComponenet";
 import { useEffect, useState } from "react";
-import { main } from "../../utils/helpers.ts";
+import { main } from "@/utils/helpers.ts";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
-import { isInteger } from "mathjs";
+import Spinner from "@/components/shared/spinner";
 
 const Test: React.FC = () => {
+  const [loading, setLoading] = useState<boolean>(false);
+
   const [answers, setAnswers] = useState<number[]>([]);
   const [labels, setLabels] = useState<number[]>([]);
 
@@ -25,6 +26,7 @@ const Test: React.FC = () => {
     minTemp: number,
     maxTemp: number
   ): Promise<void> => {
+    setLoading(true);
     setAnswers([]);
     for (let T: number = minTemp; T <= maxTemp; T++) {
       let answer: number = await main(T);
@@ -42,6 +44,7 @@ const Test: React.FC = () => {
       )
     );
     setLabels((current) => [...current, maxTemp]);
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -49,7 +52,7 @@ const Test: React.FC = () => {
   }, []);
 
   return (
-    <div className="w-full mx-auto flex flex-col bg-slate-50 px-10">
+    <div className="w-full mx-auto flex items-center px-10">
       <div className="flex flex-col gap-6 my-3">
         <div className="flex items-center gap-2">
           <p className="whitespace-nowrap">مینیمم دما : {minTemp}</p>
@@ -87,14 +90,18 @@ const Test: React.FC = () => {
         </Button>
       </div>
       <div className="w-3/4 mx-auto">
-        <ChartComponent
-          type={"line"}
-          data={answers}
-          labels={labels}
-          YLabel={"فشار"}
-          XLable={"دما"}
-          classes={"py-4"}
-        />
+        {loading ? (
+          <Spinner />
+        ) : (
+          <ChartComponent
+            type={"line"}
+            data={answers}
+            labels={labels}
+            YLabel={"فشار"}
+            XLable={"دما"}
+            classes={"py-4"}
+          />
+        )}
       </div>
     </div>
   );
