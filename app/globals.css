@@ -10,6 +10,9 @@
   direction: rtl;
   font-family: vazir !important;
 }
+.Toastify__toast-body {
+  font-size: 14px !important;
+}
 @layer base {
   :root {
     --background: 0 0% 100%;

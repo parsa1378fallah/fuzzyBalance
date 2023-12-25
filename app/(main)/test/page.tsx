@@ -5,6 +5,7 @@ import { main } from "@/utils/helpers.ts";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import Spinner from "@/components/shared/spinner";
+import { notify } from "@/utils/notify";
 
 const Test: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
@@ -52,7 +53,7 @@ const Test: React.FC = () => {
   }, []);
 
   return (
-    <div className="w-full mx-auto flex items-center px-10">
+    <div className="w-full mx-auto flex flex-col lg:flex-row items-center px-10">
       <div className="flex flex-col gap-6 my-3">
         <div className="flex items-center gap-2">
           <p className="whitespace-nowrap">مینیمم دما : {minTemp}</p>
@@ -80,10 +81,14 @@ const Test: React.FC = () => {
           />
         </div>
         <Button
-          variant={"outline"}
-          className={"w-1/2 text-xl"}
+          variants={"outline"}
+          className={`w-1/2 text-xl ${
+            Number(minTemp) < Number(maxTemp) ? "bg-green-500" : "bg-red-500"
+          }`}
           onClick={() => {
-            handleFuzzyBalanceChart(Number(minTemp), Number(maxTemp));
+            Number(minTemp) > Number(maxTemp)
+              ? notify("error", "ماکسیمم دما باید از مینیمم دما بیشتر باشد")
+              : handleFuzzyBalanceChart(Number(minTemp), Number(maxTemp));
           }}
         >
           اعمال
