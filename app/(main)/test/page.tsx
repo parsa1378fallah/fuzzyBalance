@@ -1,13 +1,17 @@
 "use client";
+
 import ChartComponent from "@/components/shared/chartComponenet";
-import { useEffect, useState } from "react";
-import { main } from "@/utils/helpers.ts";
-import { Button } from "@/components/ui/button.tsx";
-import { Input } from "@/components/ui/input.tsx";
+import { useEffect, useMemo, useState } from "react";
+import { main } from "@/utils/helpers";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import Spinner from "@/components/shared/spinner";
 import { notify } from "@/utils/notify";
+import Selector from "@/components/shared/select";
+import { chartTypes } from "@/data/data";
 
 const Test: React.FC = () => {
+  const [chartType, setChartType] = useState<string>("line");
   const [loading, setLoading] = useState<boolean>(false);
 
   const [answers, setAnswers] = useState<number[]>([]);
@@ -23,33 +27,36 @@ const Test: React.FC = () => {
     setMaxTemp(Number(event.target.value));
   };
 
-  const handleFuzzyBalanceChart = async (
-    minTemp: number,
-    maxTemp: number
-  ): Promise<void> => {
-    setLoading(true);
-    setAnswers([]);
-    for (let T: number = minTemp; T <= maxTemp; T++) {
-      let answer: number = await main(T);
-      setAnswers((current) => [...current, answer]);
-    }
-    if (maxTemp != Math.abs(maxTemp)) {
-      console.log("dfasfdsa");
-      let answer = await main(maxTemp);
-      setAnswers((current) => [...current, answer]);
-    }
-    setLabels(
-      Array.from(
+  const handleFuzzyBalanceChart = useMemo(
+    () => async (): Promise<void> => {
+      setLoading(true);
+      let answeres: number[] = [];
+      let labeles: number[] = [];
+      for (let T: number = minTemp; T <= maxTemp; T++) {
+        let answer: number = await main(T);
+        answeres = [...answeres, answer];
+      }
+      if (maxTemp != Math.abs(maxTemp)) {
+        console.log("dfasfdsa");
+        let answer = await main(maxTemp);
+        answeres = [...answeres, answer];
+      }
+      labeles = Array.from(
         { length: maxTemp - minTemp },
         (_, index) => index + Number(minTemp)
-      )
-    );
-    setLabels((current) => [...current, maxTemp]);
-    setLoading(false);
-  };
+      );
+
+      labeles = [...labeles, maxTemp];
+      setLoading(false);
+
+      setAnswers(answeres);
+      setLabels(labeles);
+    },
+    [maxTemp, minTemp]
+  );
 
   useEffect(() => {
-    handleFuzzyBalanceChart(Number(minTemp), Number(maxTemp));
+    handleFuzzyBalanceChart();
   }, []);
 
   return (
@@ -81,14 +88,13 @@ const Test: React.FC = () => {
           />
         </div>
         <Button
-          
           className={`w-1/2 text-xl ${
             Number(minTemp) < Number(maxTemp) ? "bg-green-500" : "bg-red-500"
           }`}
           onClick={() => {
             Number(minTemp) > Number(maxTemp)
               ? notify("error", "ماکسیمم دما باید از مینیمم دما بیشتر باشد")
-              : handleFuzzyBalanceChart(Number(minTemp), Number(maxTemp));
+              : handleFuzzyBalanceChart();
           }}
         >
           اعمال
@@ -98,14 +104,23 @@ const Test: React.FC = () => {
         {loading ? (
           <Spinner />
         ) : (
-          <ChartComponent
-            type={"line"}
-            data={answers}
-            labels={labels}
-            YLabel={"فشار"}
-            XLable={"دما"}
-            classes={"py-4"}
-          />
+          <div className="flex flex-col">
+            <Selector
+              placeholder={chartTypes.placeholder}
+              items={chartTypes.items}
+              defaultChart={chartType}
+              handleChangeValue={(value) => setChartType(value)}
+              classes={"w-[180px]"}
+            />
+            <ChartComponent
+              type={chartType}
+              data={answers}
+              labels={labels}
+              YLabel={"فشار"}
+              XLable={"دما"}
+              classes={"py-4"}
+            />
+          </div>
         )}
       </div>
     </div>

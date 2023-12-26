@@ -5,7 +5,7 @@ import { Chart, registerables } from "chart.js";
 interface ChartProps {
   width?: number;
   height?: number;
-  type: keyof ChartTypeRegistry;
+  type: string;
   YLabel: string;
   XLable: string;
   labels?: ChartData["labels"];
@@ -34,7 +34,7 @@ const ChartComponent: React.FC<ChartProps> = ({
     if (!ctx) return;
 
     const myChart = new Chart(ctx, {
-      type: type,
+      type: type as keyof ChartTypeRegistry,
       data: {
         labels: labels,
         datasets: [
