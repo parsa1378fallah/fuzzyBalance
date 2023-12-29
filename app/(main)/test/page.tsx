@@ -1,17 +1,13 @@
 "use client";
-
-import ChartComponent from "@/components/shared/chartComponenet";
 import { useEffect, useMemo, useState } from "react";
 import { main } from "@/utils/helpers";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Spinner from "@/components/shared/spinner";
 import { notify } from "@/utils/notify";
-import Selector from "@/components/shared/select";
-import { chartTypes } from "@/data/data";
+import Chartjs from "@/components/shared/chart";
 
 const Test: React.FC = () => {
-  const [chartType, setChartType] = useState<string>("line");
   const [loading, setLoading] = useState<boolean>(false);
 
   const [answers, setAnswers] = useState<number[]>([]);
@@ -57,6 +53,7 @@ const Test: React.FC = () => {
 
   useEffect(() => {
     handleFuzzyBalanceChart();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -105,20 +102,12 @@ const Test: React.FC = () => {
           <Spinner />
         ) : (
           <div className="flex flex-col">
-            <Selector
-              placeholder={chartTypes.placeholder}
-              items={chartTypes.items}
-              defaultChart={chartType}
-              handleChangeValue={(value) => setChartType(value)}
-              classes={"w-[180px]"}
-            />
-            <ChartComponent
-              type={chartType}
-              data={answers}
+            <Chartjs
               labels={labels}
-              YLabel={"فشار"}
+              data={answers}
+              showChartSelectoe={true}
               XLable={"دما"}
-              classes={"py-4"}
+              YLabel={"فشار"}
             />
           </div>
         )}

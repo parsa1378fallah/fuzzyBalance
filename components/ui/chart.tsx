@@ -10,7 +10,7 @@ interface ChartProps {
   XLable: string;
   labels?: ChartData["labels"];
   data: number[];
-  classes: string;
+  classes?: string;
   options?: ChartOptions;
 }
 
